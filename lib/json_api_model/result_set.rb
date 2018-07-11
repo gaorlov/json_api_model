@@ -4,7 +4,7 @@ module JsonApiModel
       @set = client_result_set
     end
 
-    def as_json
+    def as_json( opts = {} )
       if block_given?
         yield @set, meta
       else

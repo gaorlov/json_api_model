@@ -1,8 +1,8 @@
 # JsonApiModel
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/json_api_model`. To experiment with that code, run `bin/console` for an interactive prompt.
+Much like `ActiveRecord` is an ORM on top of your database, [`JSON API Client`](https://github.com/JsonApiClient/json_api_client) is an ORM specific to a service. This gem is the `app/models/` on top of `json_api_client`. 
 
-TODO: Delete this and the text above, and describe your gem
+Yes, you can put business in the client, but if you need to distrubute the gem, you will want that to live somewhere else. This gem provides a thin wrapper layer to let you do that. 
 
 ## Installation
 
@@ -22,7 +22,53 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+TODO: finish writing this
+
+Sample Base Class
+
+```ruby
+module MyService
+  class Base < JsonApiModel::Model
+
+    wraps MyService::Client::Base
+
+    # delegates connection options to the Client::Base without having to modify the gem
+    self.connection do | conn |
+      conn.use Faraday::Response::Logger, Rails.logger
+
+      conn.faraday.options.merge!(
+        open_timeout: 5,
+        timeout: 5
+      )
+    end
+  end
+end
+```
+
+Inherited Class
+
+```ruby
+module MySerive
+  class MyModel < Base
+    wraps MyService::Client::MyModel
+
+    def instanece_level_business
+      42
+    end
+  end
+end
+```
+
+In the controller
+
+```ruby
+class WhateversController < ApplicationController
+  def index
+    render json: MyService::MyModel.where( request.query_parameters ).all.as_json
+  end
+end
+```
+
 
 ## Development
 
