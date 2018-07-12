@@ -1,8 +1,8 @@
 module JsonApiModel
   class Scope
-    def initialize( resource_class )
-      @resource_class = resource_class
-      @client_scope   = JsonApiClient::Query::Builder.new( resource_class.client_class )
+    def initialize( model_class )
+      @model_class = model_class
+      @client_scope   = JsonApiClient::Query::Builder.new( model_class.client_class )
     end
 
     def to_a
@@ -17,24 +17,24 @@ module JsonApiModel
                                             args: args,
                                             url: url do
         results = @client_scope.find args
-        ResultSet.new( results, @resource_class )
+        ResultSet.new( results, @model_class )
       end
     end
 
     def first
       JsonApiModel.instrumenter.instrument 'first.json_api_model', url: url do
-        @resource_class.new_from_client @client_scope.first
+        @model_class.new_from_client @client_scope.first
       end
     end
 
     def last
       JsonApiModel.instrumenter.instrument 'last.json_api_model', url: url do
-        @resource_class.new_from_client @client_scope.last
+        @model_class.new_from_client @client_scope.last
       end
     end
 
     def build
-      @resource_class.new_from_client @client_scope.build
+      @model_class.new_from_client @client_scope.build
     end
 
     def params
@@ -53,7 +53,7 @@ module JsonApiModel
     private
 
     def url
-      @resource_class.client_class.requestor.send( :resource_path, params )
+      @model_class.client_class.requestor.send( :resource_path, params )
     end
   end
 end

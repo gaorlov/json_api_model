@@ -13,6 +13,7 @@ module JsonApiModel
       def new_from_client( client )
         model = new
         model.client = client
+        model
       end
 
       def connection( &block )
@@ -26,7 +27,7 @@ module JsonApiModel
       end
     end
 
-    attr_reader :client
+    attr_accessor :client
 
     def initialize( attributes = {} )
       @client = self.class.client_class.new( attributes )
@@ -36,10 +37,10 @@ module JsonApiModel
       client.send m, *args, &block
     end
 
-    private
-
-    def client=( client )
-      @client = client
+    def as_json
+      client.as_json
     end
+
+    RESERVED_FIELDS = [ :type, :id ]
   end
 end

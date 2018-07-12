@@ -5,7 +5,9 @@ class JsonApiModelTest < Minitest::Test
     refute_nil ::JsonApiModel::VERSION
   end
 
-  def test_it_does_something_useful
-    assert false
+  def test_instrumenter_assignemnt
+    JsonApiModel.instrumenter = DummyInstrumenter.new
+
+    assert JsonApiModel.instrumenter.is_a?( DummyInstrumenter )
   end
 end
