@@ -1,5 +1,9 @@
 # JsonApiModel
 
+[![Build Status](https://travis-ci.org/gaorlov/json_api_model.svg?branch=master)](https://travis-ci.org/gaorlov/json_api_model)
+[![Maintainability](https://api.codeclimate.com/v1/badges/31b0f67e5ece127dbb67/maintainability)](https://codeclimate.com/github/gaorlov/json_api_model/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/31b0f67e5ece127dbb67/test_coverage)](https://codeclimate.com/github/gaorlov/json_api_model/test_coverage)
+
 Much like `ActiveRecord` is an ORM on top of your database, [`JSON API Client`](https://github.com/JsonApiClient/json_api_client) is an ORM specific to a service. This gem is the `app/models/` on top of `json_api_client`. 
 
 Yes, you can put business in the client, but if you need to distrubute the gem, you will want that to live somewhere else. This gem provides a thin wrapper layer to let you do that. 
