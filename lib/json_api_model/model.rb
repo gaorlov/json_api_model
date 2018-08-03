@@ -20,6 +20,20 @@ module JsonApiModel
         client_class.connection true, &block
       end
 
+      def method_missing( m, *args, &block )
+        result = client_class.send m, *args, &block
+        case result
+        when JsonApiClient::ResultSet
+          JsonApiModel::ResultSet.new( result, self )
+        when client_class
+          new_from_client result
+        else
+          result
+        end
+      rescue NoMethodError
+        raise NoMethodError, "No method `#{m}' found in #{self} or #{client_class}"
+      end
+
       private
 
       def _new_scope
@@ -35,6 +49,8 @@ module JsonApiModel
 
     def method_missing( m, *args, &block )
       client.send m, *args, &block
+    rescue NoMethodError
+      raise NoMethodError, "No method `#{m}' found in #{self} or #{client}"
     end
 
     def as_json

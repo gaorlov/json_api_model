@@ -1,8 +1,8 @@
 module JsonApiModel
   class Scope
     def initialize( model_class )
-      @model_class = model_class
-      @client_scope   = JsonApiClient::Query::Builder.new( model_class.client_class )
+      @model_class  = model_class
+      @client_scope = JsonApiClient::Query::Builder.new( model_class.client_class )
     end
 
     def to_a
@@ -31,10 +31,6 @@ module JsonApiModel
       JsonApiModel.instrumenter.instrument 'last.json_api_model', url: url do
         @model_class.new_from_client @client_scope.last
       end
-    end
-
-    def build
-      @model_class.new_from_client @client_scope.build
     end
 
     def params
