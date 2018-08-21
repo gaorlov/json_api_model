@@ -4,6 +4,9 @@ module JsonApiModel
 
     included do
 
+      class_attribute :__associations
+      self.__associations = {}
+
       attr_accessor :__cached_associations
 
       def has_relationship_ids?( name )
@@ -16,15 +19,13 @@ module JsonApiModel
         when Hash
           [ relationships_data[ :id ] ]
         when Array
-          relationships_data.map &:id
+          relationships_data.map{ | datum | datum[ :id ] }
         else
           raise "Unexpected relationship data type: #{relationships_data.class}"
         end
       end
 
       class << self
-        attr_accessor :__associations
-        __associations = {}
 
         def belongs_to( name, opts = {} )
           process Associations::BelongsTo.new( self, name, opts )
@@ -59,7 +60,6 @@ module JsonApiModel
               self.__cached_associations[association.name] = result
             end
             self.__cached_associations[association.name]
-            end
           end
         end
       end

@@ -7,7 +7,7 @@ module JsonApiModel
       def initialize( base_class, name, opts = {} )
         self.name = name
         self.opts = opts
-        self.key  = idify( class_name )
+        self.key  = idify( base_class )
 
         sanitize_opts( base_class )
       end

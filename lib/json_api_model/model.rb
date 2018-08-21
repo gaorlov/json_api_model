@@ -1,9 +1,7 @@
 module JsonApiModel
   class Model
     class << self
-      extend Forwardable
-
-      def_delegators :__new_scope, :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last
+      delegate :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last, to: :__new_scope
 
       attr_reader :client_class
       def wraps( client_class )
@@ -26,11 +24,11 @@ module JsonApiModel
         Scope.new( self )
       end
     end
-    extend Forwardable
-
+    include Associatable
+    
     attr_accessor :client
 
-    def_delegators :client, :as_json
+    delegate :as_json, to: :client
 
     def initialize( attributes = {} )
       @client = self.class.client_class.new( attributes )

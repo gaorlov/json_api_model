@@ -46,11 +46,13 @@ module Example
 
 end
 
-class FakeActiveRecord::Base
-  def where( args = {} )
-  end
+module FakeActiveRecord
+  class Base
+    def where( args = {} )
+    end
 
-  def find( id )
+    def find( id )
+    end
   end
 end
 
