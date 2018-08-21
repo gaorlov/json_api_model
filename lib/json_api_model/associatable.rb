@@ -1,0 +1,68 @@
+module JsonApiModel
+  module Associatable
+    extend ActiveSupport::Concern
+
+    included do
+
+      attr_accessor :__cached_associations
+
+      def has_relationship_ids?( name )
+        !!relationships( name )
+      end
+
+      def relationship_ids( instance )
+        relationships_data = relationships( name )[ :data ]
+        case relationships_data
+        when Hash
+          [ relationships_data[ :id ] ]
+        when Array
+          relationships_data.map &:id
+        else
+          raise "Unexpected relationship data type: #{relationships_data.class}"
+        end
+      end
+
+      class << self
+        attr_accessor :__associations
+        __associations = {}
+
+        def belongs_to( name, opts = {} )
+          process Associations::BelongsTo.new( self, name, opts )
+        end
+
+        def has_one( name, opts = {} )
+          process Associations::HasOne.new( self, name, opts )
+        end
+
+        def has_many( name, opts = {} )
+          process Associations::HasMany.new( self, name, opts )
+        end
+        
+        protected
+
+        def process( association )
+          associate association
+          methodize association
+        end
+
+        def associate( association )
+          self.__associations = __associations.merge association.name => association
+        end
+
+        def methodize( association )
+          define_method association.name do
+            self.__cached_associations ||= {}
+
+            unless self.__cached_associations.has_key? association.name
+              result = association.fetch( self )
+              
+              self.__cached_associations[association.name] = result
+            end
+            self.__cached_associations[association.name]
+            end
+          end
+        end
+      end
+    end
+  end
+end

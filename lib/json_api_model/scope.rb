@@ -11,7 +11,6 @@ module JsonApiModel
 
     alias all to_a
 
-
     def find( args = {} )
       JsonApiModel.instrumenter.instrument 'find.json_api_model',
                                             args: args,
@@ -20,6 +19,8 @@ module JsonApiModel
         ResultSet.new( results, @model_class )
       end
     end
+
+    alias find_by find
 
     def first
       JsonApiModel.instrumenter.instrument 'first.json_api_model', url: url do

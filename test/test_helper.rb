@@ -17,18 +17,50 @@ module Example
 
     class User < Base
     end
+
+    class Profile < Base
+    end
+
+    class Option < Base
+    end
+
+    class Org < Base
+    end
   end
 
 
   class User < JsonApiModel::Model
     wraps Example::Client::User
 
+    belongs_to :org
+    has_one :profile
+    has_many :options
+
+    has_many :properties
+
     def instance_method
       42
     end
   end
+
+
 end
 
+class FakeActiveRecord::Base
+  def where( args = {} )
+  end
+
+  def find( id )
+  end
+end
+
+class LocalUserOwner < FakeActiveRecord::Base
+
+end
+
+class LocalUserProperties < FakeActiveRecord::Base
+
+end
 
 class DummyInstrumenter
   attr_accessor :last_event
