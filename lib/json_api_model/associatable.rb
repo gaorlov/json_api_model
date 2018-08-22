@@ -20,6 +20,8 @@ module JsonApiModel
           [ relationships_data[ :id ] ]
         when Array
           relationships_data.map{ | datum | datum[ :id ] }
+        when NilClass
+          [ ]
         else
           raise "Unexpected relationship data type: #{relationships_data.class}"
         end
