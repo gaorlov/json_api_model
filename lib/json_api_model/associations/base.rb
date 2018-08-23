@@ -13,10 +13,14 @@ module JsonApiModel
       end
 
       def fetch( instance )
-        process association_class( name, opts ).send( action, query( instance ) )
+        process klass.send( action, query( instance ) )
       end
 
       protected
+
+      def klass
+        @klass ||= association_class( name, opts )
+      end
 
       def association_class( name, opts = {} )
         a_class       = opts[:class]                   if opts.has_key? :class
@@ -35,6 +39,10 @@ module JsonApiModel
 
       def supported_options
         [ :class, :class_name ] + additional_options
+      end
+
+      def additional_options
+        []
       end
 
       def sanitize_opts( base_class )

@@ -19,7 +19,6 @@ class ModelTest < Minitest::Test
     assert_equal 1, model.id
   end
 
-
   def test_model_attributes
     model  = Example::User.new( id: 1 )
 

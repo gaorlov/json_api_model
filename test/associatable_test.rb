@@ -27,6 +27,10 @@ class AssociatableTest < Minitest::Test
                                           { type: :options, id: 2 }
                                         ],
                                         links: { self: "", related: "" }
+                                      },
+                                      malformed:{
+                                        data: 6,
+                                        links: {self: "", related: ""}
                                       }
                                     }
                                   }, 
@@ -63,7 +67,9 @@ class AssociatableTest < Minitest::Test
                                   ],
                             meta: { record_count: 1, page_count: 1 } }.to_json )
 
-    stub_request(:get, "http://example.com/options?filter[id][0]=1&filter[id][1]=2")
+  [ "http://example.com/options?filter[id][0]=1&filter[id][1]=2",
+    "http://example.com/options?filter[id][0]=1&filter[id][1]=2&page[page]=1&page[per_page]=1" ].each do |url|
+      stub_request(:get, url)
         .to_return( status: 200,
                     headers: { content_type: 'application/vnd.api+json' },
                     body: { data: [ { type: :options,
@@ -78,7 +84,7 @@ class AssociatableTest < Minitest::Test
                                     }
                                   ],
                             meta: { record_count: 1, page_count: 1 } }.to_json )
-
+    end
 
     @user1 = Example::User.find( 1 ).first
     @user2 = Example::User.find( 2 ).first
@@ -86,19 +92,19 @@ class AssociatableTest < Minitest::Test
 
   def test_belongs_to_adds_association
     Example::User.belongs_to :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :nothing ], Example::User.__associations.keys
+    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :nothing ], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::BelongsTo, Example::User.__associations.values.last.class
   end
 
   def test_has_one_adds_association
     Example::User.has_one :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :nothing ], Example::User.__associations.keys
+    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :nothing ], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::HasOne, Example::User.__associations.values.last.class
   end
 
   def test_has_many_adds_association
     Example::User.has_many :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :nothing ], Example::User.__associations.keys
+    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :nothing ], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::HasMany, Example::User.__associations.values.last.class
   end
 
@@ -120,6 +126,9 @@ class AssociatableTest < Minitest::Test
 
     assert_equal [],      @user1.relationship_ids( :not_a_relationship )
     assert_equal [],      @user2.relationship_ids( :org )
+    assert_raises do
+      @user1.relationship_ids :malformed
+    end
   end
 
   def test_belongs_to_correctly_queries_relationship
@@ -145,10 +154,9 @@ class AssociatableTest < Minitest::Test
   end
 
   def test_has_many_correctly_queries_relationship
-    opts = @user1.options.all
-    assert opts
-    assert_equal [ 1, 2 ], opts.map( &:id )
-    assert_equal "value", opts.first.value
+    assert @user1.options
+    assert_equal [ 1, 2 ], @user1.options.map( &:id )
+    assert_equal "value", @user1.options.first.value
   end
 
   def test_has_many_correctly_queries_by_model_id
@@ -156,24 +164,45 @@ class AssociatableTest < Minitest::Test
     assert [ 1 ], @user1.properties.map( &:user_id )
   end
 
-  def test_through_correctly_queries_relationship
-    skip
+  def test_through_correctly_queries_by_model_id
+    assert @user1.ends
+    assert_equal [1], @user1.ends.map(&:id)
   end
 
-  def test_through_correctly_queries_attribute_id
-    skip
+  def test_find_caches
+    stub = stub_request( :get, "http://example.com/users?filter[name]=Greg" )
+            .to_return( headers: { content_type: "application/vnd.api+json" },
+                        body: { data: { type: :users,
+                                    id: 1,
+                                    attributes: { name: "Greg" },
+                                    links: { self: ""}
+                                  },
+                                meta: { record_count: 1, page_count: 1 } }.to_json ).times(1)
+    scope = Example::User.where( name: "Greg" )
+
+    scope.all
+    scope.all
+
+    assert_requested stub, times: 1
   end
 
-  def test_polymorphic_associaitons_work
-    skip
-  end
+  def test_first_pulls_from_cache
+    stub = stub_request( :get, "http://example.com/users?filter[name]=Greg" )
+            .to_return( headers: { content_type: "application/vnd.api+json" },
+                        body: { data: { type: :users,
+                                    id: 1,
+                                    attributes: { name: "Greg" },
+                                    links: { self: ""}
+                                  },
+                                meta: { record_count: 1, page_count: 1 } }.to_json ).times(1)
+    scope = Example::User.where( name: "Greg" )
 
-  def test_polymorphic_associations_work_with_class_options
-    skip
-  end
+    scope.all
+    scope.first
 
-  def test_polymorphic_belongs_to_can_call_association
-    skip
+    assert_equal scope.all.first, scope.first
+
+    assert_requested stub, times: 1
   end
 
   def test_object_association_raises

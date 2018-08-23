@@ -47,6 +47,9 @@ module Example
     has_one :whatever
     has_many :properties
 
+    has_many :intermediates
+    has_many :ends, through: :intermediates
+
     def instance_method
       42
     end
@@ -75,7 +78,11 @@ module FakeActiveRecord
 
     class << self
       def where( args = {} )
-        [ new( args ) ]
+        args.each_with_object([]) do | ( k, v ), results |
+          Array(v).each do |value|
+            results << new( k => value )
+          end
+        end
       end
 
       def find( id )
@@ -103,6 +110,16 @@ class Property < FakeActiveRecord::Base
 end
 
 class Nothing < FakeActiveRecord::Base
+end
+
+class End < FakeActiveRecord::Base
+end
+
+class Intermediate < FakeActiveRecord::Base
+  def initialize( args = {} )
+    super
+    @__attributes[:end_id] = 1
+  end
 end
 
 class DummyInstrumenter
