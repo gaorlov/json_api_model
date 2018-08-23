@@ -10,11 +10,11 @@ module JsonApiModel
       attr_accessor :__cached_associations
 
       def has_relationship_ids?( name )
-        !!relationships( name )
+        !!relationships[ name ]
       end
 
-      def relationship_ids( instance )
-        relationships_data = relationships( name )[ :data ]
+      def relationship_ids( name )
+        relationships_data = relationships[ name ]&.dig( :data )
         case relationships_data
         when Hash
           [ relationships_data[ :id ] ]

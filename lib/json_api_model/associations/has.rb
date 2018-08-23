@@ -2,9 +2,13 @@ module JsonApiModel
   module Associations
     class Has < Base
       
+      def action
+        :where
+      end
+
       def query( instance )
         if instance.has_relationship_ids? name
-          { id: relationship_ids( instance ) }
+          { id: instance.relationship_ids( name ) }
         elsif through?
           { id: target_ids( instance ) }
         elsif as?

@@ -13,14 +13,10 @@ module JsonApiModel
       end
 
       def fetch( instance )
-        klass( instance ).send( action, query( instance ) )
+        process association_class( name, opts ).send( action, query( instance ) )
       end
 
       protected
-
-      def klass( instance = nil )
-        @klass ||= association_class name, opts
-      end
 
       def association_class( name, opts = {} )
         a_class       = opts[:class]                   if opts.has_key? :class
@@ -51,6 +47,10 @@ module JsonApiModel
           plural = invalid_options.count > 1
           raise "#{base_class}: #{list} #{plural ? "are" : "is"} not supported."
         end
+      end
+
+      def process( results )
+        results
       end
     end
   end

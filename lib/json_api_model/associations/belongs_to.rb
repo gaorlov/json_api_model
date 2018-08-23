@@ -1,6 +1,8 @@
 module JsonApiModel
   module Associations
     class BelongsTo < Base
+      include Flattable
+
       def action
         :find
       end
@@ -10,7 +12,11 @@ module JsonApiModel
       end
 
       def query( instance )
-        instance.send key
+        if instance.has_relationship_ids? name
+          { id: instance.relationship_ids( name ) }
+        else
+          instance.send key
+        end
       end
 
       def klass( instance )

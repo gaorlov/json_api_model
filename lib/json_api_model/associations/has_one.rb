@@ -1,10 +1,7 @@
 module JsonApiModel
   module Associations
     class HasOne < Has
-
-      def action
-        :find_by
-      end
+      include Flattable
     end
   end
 end
