@@ -85,7 +85,22 @@ module Example
   end
 end
 
+
 module FakeActiveRecord
+  class Relation
+    def initialize( records )
+      @__records = records
+    end
+
+    def first
+      @__records.first
+    end
+
+    def method_missing( m, *args, &block )
+      @__records.send m, *args, &block
+    end
+  end
+
   class Base
     attr_accessor :__attributes
 
@@ -95,15 +110,21 @@ module FakeActiveRecord
 
     class << self
       def where( args = {} )
-        args.each_with_object([]) do | ( k, v ), results |
+        r = args.each_with_object([]) do | ( k, v ), results |
           Array(v).each do |value|
             results << new( k => value )
           end
         end
+        Relation.new r
       end
 
-      def find( id )
-        new id: id
+      def find( opts )
+        case opts
+        when Integer
+          new id: opts
+        when Hash
+          where opts
+        end
       end
     end
 

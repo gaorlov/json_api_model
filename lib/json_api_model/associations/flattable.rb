@@ -17,7 +17,8 @@ module JsonApiModel
         def flattable?( results )
           results.is_a?( JsonApiModel::ResultSet ) ||
           results.is_a?( Array ) ||
-          results.is_a?( JsonApiModel::Scope )
+          results.is_a?( JsonApiModel::Scope ) ||
+          results.respond_to?( :first )
         end
       end
     end
