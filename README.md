@@ -217,6 +217,10 @@ ActiveSupport::Notifications.subscribe "find.json_api_model" do |name, started, 
 end
 ```
 
+## Known Issues
+
+* Due to an open issue in `JsonApiClient` scopes are modifiable, which means that `scope.where( params )` now permanently has those params in it. 
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

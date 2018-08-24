@@ -177,7 +177,7 @@ class AssociatableTest < Minitest::Test
                                     attributes: { name: "Greg" },
                                     links: { self: ""}
                                   },
-                                meta: { record_count: 1, page_count: 1 } }.to_json ).times(1)
+                                meta: { record_count: 1, page_count: 1 } }.to_json )
     scope = Example::User.where( name: "Greg" )
 
     scope.all
@@ -194,7 +194,7 @@ class AssociatableTest < Minitest::Test
                                     attributes: { name: "Greg" },
                                     links: { self: ""}
                                   },
-                                meta: { record_count: 1, page_count: 1 } }.to_json ).times(1)
+                                meta: { record_count: 1, page_count: 1 } }.to_json )
     scope = Example::User.where( name: "Greg" )
 
     scope.all
