@@ -65,9 +65,10 @@ Associations have some of the standard ActiveRecord options. Namely:
     end
   ```
 
+__NOTE__: Due to perf implications the following are __only__ available for local classes (not things that come through the `relatinships` block in the payload). This will __*never ever*__ be available for remote models.
+
 * `through`: many to may association helper.
 
-__NOTE__: Due to perf implications this is __only__ available for local classes (not things that come through the `relatinships` block in the payload). This will __*never ever*__ be available for remote models.
 
 ```ruby
   class Person < JsonApiModel::Model
@@ -85,6 +86,19 @@ __NOTE__: Due to perf implications this is __only__ available for local classes 
   class Food < ActiveRecord::Base
   end
 ```
+
+* `as`: specifies what the associated object calls the caller
+  ```ruby
+    class Person < JsonApiModel::Model
+    wraps MyApi::Client::Person
+      has_many :images, as: :target
+    end
+
+    class Image < ActiveRecord::Base
+      belongs_to :target
+    end
+  ```
+__NOTE__: only works for `has_one` and `has_many`
 
 ### Example
 

@@ -63,6 +63,8 @@ module Example
     has_many :intermediates
     has_many :ends, through: :intermediates
 
+    has_one :banner, as: :thing, class_name: "Image"
+
     def instance_method
       42
     end
@@ -135,6 +137,12 @@ module FakeActiveRecord
         super
       end
     end
+  end
+end
+
+class Image < FakeActiveRecord::Base
+  def thing_id
+    1
   end
 end
 

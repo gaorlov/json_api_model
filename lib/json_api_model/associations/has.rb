@@ -11,13 +11,15 @@ module JsonApiModel
           { id: instance.relationship_ids( name ) }
         elsif through?
           { id: target_ids( instance ) }
+        elsif as?
+            { "#{as}_id" => instance.id }
         else
           { key => instance.id }
         end
       end
 
       def additional_options
-        [ :through ]
+        [ :as, :through ]
       end
 
       protected
@@ -28,6 +30,14 @@ module JsonApiModel
 
       def through?
         opts.has_key? :through
+      end
+
+      def as
+        opts[:as]
+      end
+
+      def as?
+        opts.has_key? :as
       end
 
       def target_ids( instance )
