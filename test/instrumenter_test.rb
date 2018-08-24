@@ -29,11 +29,9 @@ class InstrumenterTest < Minitest::Test
     assert 'last.json_api_model', JsonApiModel.instrumenter.last_event[:name]
   end
 
-  def test_null_instrumenter_doesnt_mangle_payload
-    instrumenter = JsonApiModel::Instrumenter::NullInstrumenter.new
-
-    instrumenter.instrument( "event", "payload" ) do |blah|
-      assert_equal "payload", blah
+  def test_default_instumenter_is_innocuous
+    JsonApiModel::Instrumenter::NullInstrumenter.new.instrument 'last.json_api_model', { payload: :value } do | payload |
+      assert_equal( { payload: :value }, payload )
     end
   end
 end

@@ -4,7 +4,9 @@ require "json_api_client"
 require 'webmock/minitest'
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/test/"
+end
 
 require "json_api_model"
 require "minitest/autorun"
@@ -16,6 +18,17 @@ module Example
     end
 
     class User < Base
+      custom_endpoint :search, on: :collection, request_method: :get
+      
+      class << self
+        def base_class_method
+          :something
+        end
+
+        def lucky_search( params = {} )
+          search( params ).first
+        end
+      end
     end
 
     class Blank < Base
@@ -52,6 +65,10 @@ module Example
 
     def instance_method
       42
+    end
+
+    def self.class_method
+      :also_42
     end
   end
 

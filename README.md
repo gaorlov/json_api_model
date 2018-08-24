@@ -1,5 +1,9 @@
 # JsonApiModel
 
+[![Build Status](https://travis-ci.org/gaorlov/json_api_model.svg?branch=master)](https://travis-ci.org/gaorlov/json_api_model)
+[![Maintainability](https://api.codeclimate.com/v1/badges/31b0f67e5ece127dbb67/maintainability)](https://codeclimate.com/github/gaorlov/json_api_model/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/31b0f67e5ece127dbb67/test_coverage)](https://codeclimate.com/github/gaorlov/json_api_model/test_coverage)
+
 Much like `ActiveRecord` is an ORM on top of your database, [`JSON API Client`](https://github.com/JsonApiClient/json_api_client) is an ORM specific to a service. This gem is the `app/models/` on top of `json_api_client`. 
 
 Yes, you can put business in the client, but if you need to distrubute the gem, you will want that to live somewhere else. This gem provides a thin wrapper layer to let you do that. 
@@ -20,9 +24,6 @@ Or install it yourself as:
 
     $ gem install json_api_model
 
-## Disclaimer
-
-This is a work in progress. Right now only fetching data works. This will soon change.
 
 ## Usage
 
@@ -101,7 +102,7 @@ module UserService
 end
 ```
 
-And the interaction with it is not that different from how you would work with the client:
+And the interaction with it is identical as how you would work with the client:
 
 ```ruby
 # fetching looks identical to as json_api_client (because it thinly wraps it)
@@ -115,6 +116,16 @@ user.lucky_number
 # but also transparently access the client properties
 user.id
 # => 8
+
+# creating new users
+new_user = UserService::User.new name: "greg"
+# => #<UserService::User:0x000055e1fc1c8c00 @client=#<UserService::Client::User:@attributes={"type"=>"users", "name"=>"greg"}>>
+new_user.save
+# => true
+
+# and now that the record is saved, you can search for it and get back a JsonApiModel back to keep working with
+UserService::User.where( name: "greg" ).first
+# => #<UserService::User:0x000055e1fc1c8c00 @client=#<UserService::Client::User:@attributes={"type"=>"users", "name"=>"greg", "id"=>"9"}>>
 ```
 
 ### Rendering

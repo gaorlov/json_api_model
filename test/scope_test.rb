@@ -23,6 +23,7 @@ class ScopeTest < Minitest::Test
 
   def test_scope_chains
     assert @scope.where( id: 1 ).is_a?( JsonApiModel::Scope)
+    assert_equal( { filter:{ id: 1, name: "Greg" } }, @scope.where( id: 1 ).where( name: "Greg" ).params )
   end
 
   def test_scope_delegates_to_results
