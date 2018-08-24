@@ -31,6 +31,61 @@ Using the model wrappers is pretty straighforward. It thinly wraps `JsonApiClien
 
 Any instance or class(non-query) level method will fall thorugh to the client.
 
+### Associations
+
+You can define simple associations that behave very much like ActiveRecord associations. Once you define your association, you will have a method with that name that will do the lookups and cache the results for you.
+
+* `belongs_to association`: the base object has to have the association id
+  * will return a single object or nil
+* `has_one`: the assiociation object has the id of the base. 
+  * will return a single object or nil
+* `has_many`: the association object has the id of the base.
+  * will return an array
+
+#### Assocaition Options
+
+Associations have some of the standard ActiveRecord options. Namely:
+* `class`: specifies the class to find the record in.
+
+  ```ruby
+    has_one :special_thing, class: Thing
+  ```
+
+* `class_name`: specifies the class w.o having to have the class defined. Handy for circular dependencies
+
+  ```ruby
+    class Person < JsonApiModel::Model
+      wraps MyApi::Client::Person
+      has_one :nickname, class_name: "Pesudonym"
+    end
+
+    class Pseudonym < JsonApiModel::Model
+      wraps MyApi::Client::Pseudonym
+      belongs_to :bearer, class_name: "Person"
+    end
+  ```
+
+* `through`: many to may association helper.
+
+__NOTE__: Due to perf implications this is __only__ available for local classes (not things that come through the `relatinships` block in the payload). This will __*never ever*__ be available for remote models.
+
+```ruby
+  class Person < JsonApiModel::Model
+    wraps MyApi::Client::Person
+    has_many :person_foods
+    has_many :favorite_foods, through: :person_foods, class_name: "Food"
+  end
+
+  # locally stored models that respond to #{model_class}_id
+  class PersonFood < ActiveRecord::Base
+    belongs_to :person
+    belongs_to :food
+  end
+
+  class Food < ActiveRecord::Base
+  end
+```
+
 ### Example
 
 If you have an app that talks to a `user` service. Here's how your `User` model might look:
@@ -172,6 +227,10 @@ ActiveSupport::Notifications.subscribe "find.json_api_model" do |name, started, 
   Rails.logger.debug ['notification:', name, started, finished, unique_id, payload].join(' ')
 end
 ```
+
+## Known Issues
+
+* Due to an open issue in `JsonApiClient` scopes are modifiable, which means that `scope.where( params )` now permanently has those params in it. 
 
 ## Development
 

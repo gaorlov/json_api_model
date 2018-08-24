@@ -1,9 +1,7 @@
 module JsonApiModel
   class Model
     class << self
-      extend Forwardable
-
-      def_delegators :_new_scope, :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last
+      delegate :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last, to: :__new_scope
 
       attr_reader :client_class
       def wraps( client_class )
@@ -36,12 +34,15 @@ module JsonApiModel
 
       private
 
-      def _new_scope
+      def __new_scope
         Scope.new( self )
       end
     end
-
+    include Associatable
+    
     attr_accessor :client
+
+    delegate :as_json, to: :client
 
     def initialize( attributes = {} )
       @client = self.class.client_class.new( attributes )
@@ -51,10 +52,6 @@ module JsonApiModel
       client.send m, *args, &block
     rescue NoMethodError
       raise NoMethodError, "No method `#{m}' found in #{self} or #{client}"
-    end
-
-    def as_json
-      client.as_json
     end
 
     RESERVED_FIELDS = [ :type, :id ]

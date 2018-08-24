@@ -3,7 +3,7 @@ require "test_helper"
 class InstrumenterTest < Minitest::Test
 
   def setup
-    [ "http://example.com/users?page%5Bpage%5D=1&page%5Bper_page%5D=1",
+    [ "http://example.com/users?page[page]=1&page[per_page]=1",
       "http://example.com/users"].each do |url|
 
       stub_request( :get, url )
