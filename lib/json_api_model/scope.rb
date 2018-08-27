@@ -42,20 +42,24 @@ module JsonApiModel
       end
     end
 
-    def params
-      @client_scope.params
-    end
-
     def method_missing( m, *args, &block )
       if @client_scope.respond_to? m
-        @client_scope.send m, *args, &block
-        self
+        _new_scope @client_scope.send( m, *args, &block )
       else
         all.send m, *args, &block
       end
     end
 
+    attr_accessor :client_scope
+    delegate :params, to: :client_scope
+
     private
+
+    def _new_scope( client_scope )
+      self.class.new( @model_class ).tap do |scope|
+        scope.client_scope = client_scope
+      end
+    end
 
     def cached?
       @cache.has_key? keyify
