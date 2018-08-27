@@ -45,7 +45,7 @@ class AssociatableTest < Minitest::Test
                                   },
                             meta: { record_count: 1, page_count: 1 } }.to_json )
 
-    stub_request(:get, "http://example.com/orgs?filter[id][0]=1")
+    stub_request(:get, "http://example.com/orgs/1")
         .to_return( status: 200,
                     headers: { content_type: 'application/vnd.api+json' },
                     body: { data: [ { type: :orgs,
@@ -208,6 +208,33 @@ class AssociatableTest < Minitest::Test
     assert_equal scope.all.first, scope.first
 
     assert_requested stub, times: 1
+  end
+
+  def test_first_doesnt_modify_scope
+    all_stub = stub_request( :get, "http://example.com/users?filter[name]=Greg" )
+            .to_return( headers: { content_type: "application/vnd.api+json" },
+                        body: { data: { type: :users,
+                                    id: 1,
+                                    attributes: { name: "Greg" },
+                                    links: { self: ""}
+                                  },
+                                meta: { record_count: 1, page_count: 1 } }.to_json )
+    first_stub = stub_request( :get, "http://example.com/users?filter[name]=Greg&page[page]=1&page[per_page]=1" )
+            .to_return( headers: { content_type: "application/vnd.api+json" },
+                        body: { data: { type: :users,
+                                    id: 1,
+                                    attributes: { name: "Greg" },
+                                    links: { self: ""}
+                                  },
+                                meta: { record_count: 1, page_count: 1 } }.to_json )
+    scope = Example::User.where( name: "Greg" )
+
+    scope.first
+    scope.all
+
+    assert_requested all_stub, times: 1
+    assert_requested first_stub, times: 1
+
   end
 
   def test_object_association_raises
