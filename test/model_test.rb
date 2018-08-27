@@ -107,10 +107,10 @@ class ModelTest < Minitest::Test
   def test_method_missings_raise_helpful_errors
     user = Example::User.new
     exception = assert_raises NoMethodError do
-      user.id
+      user.not_an_id
     end
 
-    assert_equal "No method `id' found in #{user} or #{user.client}", exception.message
+    assert_equal "No method `not_an_id' found in #{user} or #{user.client}", exception.message
 
     exception = assert_raises NoMethodError do
       Example::User.not_a_method

@@ -45,7 +45,7 @@ class AssociatableTest < Minitest::Test
                                   },
                             meta: { record_count: 1, page_count: 1 } }.to_json )
 
-    stub_request(:get, "http://example.com/orgs?filter[id][0]=1")
+    stub_request(:get, "http://example.com/orgs/1")
         .to_return( status: 200,
                     headers: { content_type: 'application/vnd.api+json' },
                     body: { data: [ { type: :orgs,

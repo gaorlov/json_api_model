@@ -13,7 +13,7 @@ module JsonApiModel
 
       def query( instance )
         if instance.has_relationship_ids? name
-          { id: instance.relationship_ids( name ) }
+          instance.relationship_ids( name ).first
         else
           instance.send key
         end

@@ -13,7 +13,6 @@ module JsonApiModel
       end
 
       def fetch( instance )
-        puts "#{klass}.#{action}( #{query(instance)})"
         process klass.send( action, query( instance ) )
       end
 
