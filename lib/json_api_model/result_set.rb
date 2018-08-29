@@ -17,6 +17,10 @@ module JsonApiModel
       end
     end
 
+    def preload( *args )
+      
+    end
+
     def meta
       @set.meta.attributes
     end
