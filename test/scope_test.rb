@@ -30,4 +30,12 @@ class ScopeTest < Minitest::Test
     ids = @scope.map( &:id )
     assert_equal [ 1 ], ids
   end
+
+  def test_preload_for_local_models
+    assert Example::User.preload( :whatever )
+  end
+
+  def text_preload_for_remote_models
+    skip
+  end
 end

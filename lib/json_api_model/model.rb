@@ -1,7 +1,7 @@
 module JsonApiModel
   class Model
     class << self
-      delegate :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last, to: :__new_scope
+      delegate :where, :order, :includes, :select, :all, :paginate, :page, :with_params, :first, :find, :last, :preload, to: :__new_scope
 
       attr_reader :client_class
       def wraps( client_class )
