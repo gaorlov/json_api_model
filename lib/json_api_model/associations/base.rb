@@ -2,7 +2,8 @@ module JsonApiModel
   module Associations
     class Base
 
-      attr_accessor :name, :opts, :key
+      attr_accessor :name, :opts, :key, :preloader
+      delegate :preload, to: :preloader
 
       def initialize( base_class, name, opts = {} )
         self.name = name

@@ -3,6 +3,8 @@ module JsonApiModel
     class BelongsTo < Base
       include Flattable
 
+      preloader = JsonApiModel::Associations::Preloaders::BelongsTo
+
       def action
         :find
       end
