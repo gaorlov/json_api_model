@@ -6,18 +6,6 @@ module JsonApiModel
         :where
       end
 
-      def query( instance )
-        if instance.has_relationship_ids? name
-          { id: instance.relationship_ids( name ) }
-        elsif through?
-          { id: target_ids( instance ) }
-        elsif as?
-            { "#{as}_id" => instance.id }
-        else
-          { key => instance.id }
-        end
-      end
-
       def additional_options
         [ :as, :through ]
       end
@@ -50,6 +38,24 @@ module JsonApiModel
       
       def through_key
         idify klass
+      end
+
+      private
+
+      def single_query( instance )
+        if instance.has_relationship_ids? name
+          { id: instance.relationship_ids( name ) }
+        elsif through?
+          { id: target_ids( instance ) }
+        elsif as?
+            { "#{as}_id" => instance.id }
+        else
+          { key => instance.id }
+        end
+      end
+
+      def bulk_query( instances )
+
       end
     end
   end

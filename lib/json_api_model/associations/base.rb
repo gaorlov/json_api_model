@@ -2,7 +2,7 @@ module JsonApiModel
   module Associations
     class Base
 
-      attr_accessor :name, :opts, :key, :preloader
+      attr_accessor :name, :opts, :key
       delegate :preload, to: :preloader
 
       def initialize( base_class, name, opts = {} )
@@ -15,6 +15,15 @@ module JsonApiModel
 
       def fetch( instance )
         process klass.send( action, query( instance ) )
+      end
+
+      def query( instance )
+        case instance
+        when Array
+          bulk_query instance
+        else
+          single_query instance
+        end
       end
 
       protected
@@ -56,6 +65,10 @@ module JsonApiModel
           plural = invalid_options.count > 1
           raise "#{base_class}: #{list} #{plural ? "are" : "is"} not supported."
         end
+      end
+
+      def preloader
+        @preloader ||= self.class.preloader_class.new( self )
       end
 
       def process( results )
