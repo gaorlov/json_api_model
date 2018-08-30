@@ -3,7 +3,7 @@ module JsonApiModel
     class BelongsTo < Base
       include Flattable
 
-      preloader = JsonApiModel::Associations::Preloaders::BelongsTo
+      preloader_class = JsonApiModel::Associations::Preloaders::Base
 
       def action
         :find
@@ -13,12 +13,18 @@ module JsonApiModel
         "#{name}_id"
       end
 
-      def query( instance )
+      private
+
+      def single_query( instance )
         if instance.has_relationship_ids? name
           instance.relationship_ids( name ).first
         else
           instance.send key
         end
+      end
+
+      def bulk_query( instances )
+
       end
     end
   end
