@@ -2,19 +2,34 @@ module JsonApiModel
   module Associations
     class Base
 
-      attr_accessor :name, :opts, :key
+      attr_accessor :name, :opts, :key, :base_class
       delegate :preload, to: :preloader
 
       def initialize( base_class, name, opts = {} )
-        self.name = name
-        self.opts = opts
-        self.key  = idify( base_class )
+        self.name       = name
+        self.opts       = opts
+        self.key        = idify( base_class )
+        self.base_class = base_class
 
-        sanitize_opts( base_class )
+        validate_opts!
       end
 
       def fetch( instance )
-        process klass.send( action, query( instance ) )
+        process association_class.send( action, query( instance ) )
+      end
+
+      def json_relationship?( instance )
+        instance.has_relationship_ids?( name )
+      end
+
+      def relationship_key
+         association_class.to_s.demodulize.underscore
+      end
+
+      protected
+
+      def idify( class_name )
+        "#{class_name.to_s.demodulize.underscore}_id"
       end
 
       def query( instance )
@@ -26,25 +41,14 @@ module JsonApiModel
         end
       end
 
-      protected
-
-      def klass
-        @klass ||= association_class( name, opts )
+      def association_class
+        opts[:class] ||
+        opts[:class_name]&.constantize ||
+        derived_class
       end
 
-      def association_class( name, opts = {} )
-        a_class       = opts[:class]                   if opts.has_key? :class
-        a_class_name  = opts[:class_name].constantize  if opts.has_key? :class_name
-
-        a_class || a_class_name || derived_class_for( name )
-      end
-
-      def derived_class_for( name )
+      def derived_class
         name.to_s.singularize.classify.constantize
-      end
-
-      def idify( class_name )
-        "#{class_name.to_s.demodulize.underscore}_id"
       end
 
       def supported_options
@@ -55,20 +59,13 @@ module JsonApiModel
         []
       end
 
-      def sanitize_opts( base_class )
+      def validate_opts!
         if name.to_s == "object"
           raise "#{base_class}: 'object_id' is a reserved keyword in ruby and cannot be overridden"
         end
-        invalid_options = (opts.keys - supported_options)
-        if invalid_options.present?
-          list = invalid_options.map{|o|"'#{o}'"}.to_sentence
-          plural = invalid_options.count > 1
-          raise "#{base_class}: #{list} #{plural ? "are" : "is"} not supported."
+        (opts.keys - supported_options).each do | opt |
+          raise "#{base_class}: #{opt} is not supported."
         end
-      end
-
-      def preloader
-        @preloader ||= self.class.preloader_class.new( self )
       end
 
       def process( results )

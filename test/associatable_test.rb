@@ -254,7 +254,4 @@ class AssociatableTest < Minitest::Test
       Example::User.has_many :things, polymorphic: true
     end
   end
-
-  def test_valid_association_with_no_value_does_not_raise
-  end
 end
