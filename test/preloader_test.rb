@@ -251,6 +251,18 @@ class PreloaderTest < Minitest::Test
     end
   end
 
+  def test_preload_belongs_to_remote_with_no_relationship
+    skip
+  end
+
+  def test_preload_has_one_remote_with_no_relationship
+    skip
+  end
+
+  def test_preload_has_many_remote_with_no_relationship
+    skip
+  end
+
   def test_preload_for_belongs_to_local
     loader = JsonApiModel::Associations::Preloaders::BelongsTo.new( @users, @bad_belongs_to )
     assert_raises do
