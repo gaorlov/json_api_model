@@ -28,7 +28,7 @@ module JsonApiModel
       def bulk_query( instances )
         instances.map do | instance |
           single_query( instance )
-        end
+        end.uniq
       end
     end
   end

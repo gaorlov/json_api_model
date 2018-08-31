@@ -8,6 +8,8 @@ module JsonApiModel
         end
       end
 
+      attr_accessor :objects, :preloads
+
       def initialize( objects, preloads )
         @objects  = Array( objects ).compact
         @preloads = preloads

@@ -18,12 +18,26 @@ module JsonApiModel
         process association_class.send( action, query( instance ) )
       end
 
+      def unprocessed_fetch( instance )
+        association_class.send( action, query( instance ) )
+      end
+
       def json_relationship?( instance )
-        instance.has_relationship_ids?( name )
+        instance.respond_to?( :has_relationship_ids? ) && instance.has_relationship_ids?( name )
       end
 
       def relationship_key
-         association_class.to_s.demodulize.underscore
+         base_class.to_s.demodulize.underscore
+      end
+
+      def association_class
+        @associated_class ||= opts[:class] ||
+                              opts[:class_name]&.constantize ||
+                              derived_class
+      end
+
+      def process( results )
+        results
       end
 
       protected
@@ -39,12 +53,6 @@ module JsonApiModel
         else
           single_query instance
         end
-      end
-
-      def association_class
-        opts[:class] ||
-        opts[:class_name]&.constantize ||
-        derived_class
       end
 
       def derived_class
@@ -66,10 +74,6 @@ module JsonApiModel
         (opts.keys - supported_options).each do | opt |
           raise "#{base_class}: #{opt} is not supported."
         end
-      end
-
-      def process( results )
-        results
       end
     end
   end
