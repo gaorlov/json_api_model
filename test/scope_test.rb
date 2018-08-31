@@ -9,7 +9,12 @@ class ScopeTest < Minitest::Test
                     body: { data: [ { type: :users,
                                       id: 1,
                                       attributes: { name: "Greg" },
-                                      links: { self: ""}
+                                      links: { self: ""},
+                                      relationships: {
+                                        org: {
+                                          data: { type: :orgs, id: 1 },
+                                        }
+                                      }
                                     } ], 
                             meta: { record_count: 1, page_count: 1 } }.to_json )
     end
@@ -32,6 +37,22 @@ class ScopeTest < Minitest::Test
   end
 
   def test_preload_for_local_models
-    assert Example::User.preload( :whatever )
+    users = Example::User.preload( :whatever )
+    users.each do | user |
+      assert user.__cached_associations[:whatever]
+    end
+  end
+
+  def test_preload_for_remote_models
+    org_stub = stub_request(:get, "http://example.com/orgs?ids=1")
+                  .to_return( headers: { content_type: "application/vnd.api+json" }, 
+                              body: { data: { type: :orgs, id: 1 },
+                                      meta: { record_count: 2, page_count: 1 } }.to_json)
+                
+    users = Example::User.preload( :org )
+    users.each do | user |
+      assert user.org
+    end
+    assert_requested org_stub, times: 1
   end
 end

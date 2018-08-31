@@ -65,12 +65,21 @@ module Example
 
     has_one :banner, as: :thing, class_name: "Image"
 
+
+    belongs_to :bad_belongs
+    has_one :bad_one
+    has_many :bad_many
+
     def instance_method
       42
     end
 
     def self.class_method
       :also_42
+    end
+
+    def bad_belongs_id
+      8
     end
   end
 
@@ -122,6 +131,8 @@ module FakeActiveRecord
 
       def find( opts )
         case opts
+        when Array
+          opts.map{ |id| find id }
         when Integer
           new id: opts
         when Hash
@@ -136,6 +147,9 @@ module FakeActiveRecord
       else
         super
       end
+    end
+    def respond_to_missing?( m, include_private = false )
+      __attributes.has_key? m.to_s || super
     end
   end
 end
@@ -160,6 +174,25 @@ end
 
 class End < FakeActiveRecord::Base
 end
+
+class BadBelong < FakeActiveRecord::Base
+  def initialize( args = {} )
+    @__attributes = {}
+  end
+end
+
+class BadOne < FakeActiveRecord::Base
+  def initialize( args = {} )
+    @__attributes = {}
+  end
+end
+
+class BadMany < FakeActiveRecord::Base
+  def initialize( args = {} )
+    @__attributes = {}
+  end
+end
+
 
 class Intermediate < FakeActiveRecord::Base
   def initialize( args = {} )

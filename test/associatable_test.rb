@@ -92,19 +92,19 @@ class AssociatableTest < Minitest::Test
 
   def test_belongs_to_adds_association
     Example::User.belongs_to :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :nothing ], Example::User.__associations.keys
+    assert_equal [:org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :bad_belongs, :bad_one, :bad_many, :nothing], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::BelongsTo, Example::User.__associations.values.last.class
   end
 
   def test_has_one_adds_association
     Example::User.has_one :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :nothing ], Example::User.__associations.keys
+    assert_equal [:org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :bad_belongs, :bad_one, :bad_many, :nothing], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::HasOne, Example::User.__associations.values.last.class
   end
 
   def test_has_many_adds_association
     Example::User.has_many :nothing
-    assert_equal [ :org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :nothing ], Example::User.__associations.keys
+    assert_equal [:org, :blank, :profile, :options, :something, :whatever, :properties, :intermediates, :ends, :banner, :bad_belongs, :bad_one, :bad_many, :nothing], Example::User.__associations.keys
     assert_equal JsonApiModel::Associations::HasMany, Example::User.__associations.values.last.class
   end
 

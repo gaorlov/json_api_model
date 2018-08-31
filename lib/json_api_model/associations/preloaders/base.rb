@@ -4,43 +4,38 @@ module JsonApiModel
       class Base
 
         attr_accessor :association
-        delegate :key, :relationship_key, :association_class, :process, :ids, to: :association
+        delegate :key, :name, :relationship_key, :association_class, :process, :ids, :unprocessed_fetch, to: :association
 
         def initialize( objects, association )
-          @objects     = objects
+          @objects     = Array( objects )
           @association = association
         end
 
         def fetch
-          assign @association.fetch( @objects )
+          assign [ unprocessed_fetch( @objects ) ].flatten
         end
 
-        private
+        protected
 
-        def assign( associated_objects )
-          validate_assignability!
+        def assign( results )
+          validate_assignability!( results )
           @objects.each do | object |
 
-            association = association_from( ids( object ), associated_objects )
-
-            if association
-              object.__cached_associations[name] = process association
+            associated_objects = results.select do |r|
+              associated_key( r ).in? Array( ids( object ) )
             end
+
+            object.__cached_associations ||= {}
+            object.__cached_associations[name] = process associated_objects
           end
         end
 
-        def validate_assignability!( associated_objects )
-          associated_objects.each do |obj|
-            unless assignable?( object )
-              raise "Preloading #{association_class}.#{name} failed: results don't identify an association."
+        def validate_assignability!( results )
+          results.each do | object |
+            unless associated_key( object )
+              raise "Preloading #{association_class}.#{lookup} failed: results don't identify an association."
             end
           end
-        end
-
-        def assignable?( object )
-          obj.respond_to?( key ) || obj.has_relationship_ids( relationship_key )
-        rescue
-          false
         end
       end
     end
