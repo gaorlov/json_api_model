@@ -34,8 +34,4 @@ class ScopeTest < Minitest::Test
   def test_preload_for_local_models
     assert Example::User.preload( :whatever )
   end
-
-  def text_preload_for_remote_models
-    skip
-  end
 end

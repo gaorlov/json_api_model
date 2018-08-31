@@ -18,7 +18,7 @@ module JsonApiModel
     end
 
     def preload( *args )
-      JsonApiModel::Associations::Preloader.preload( self, args )
+      JsonApiModel::Associations::Preloader.preload( self, *args )
     end
 
     def meta
