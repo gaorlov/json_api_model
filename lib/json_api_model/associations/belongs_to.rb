@@ -8,27 +8,23 @@ module JsonApiModel
       end
 
       def key
-        "#{name}_id"
+        if json_relationship?
+          :id
+        else
+          "#{name}_id"
+        end
       end
 
       def ids( instance )
-        if json_relationship?( instance )
+        if json_relationship?
           instance.relationship_ids( name ).first
         else
           instance.send key
         end
       end
 
-      private
-
-      def single_query( instance )
+      def query( instance )
         ids( instance )
-      end
-
-      def bulk_query( instances )
-        instances.map do | instance |
-          single_query( instance )
-        end.uniq
       end
     end
   end

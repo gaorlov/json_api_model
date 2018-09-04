@@ -57,11 +57,14 @@ module JsonApiModel
             self.__cached_associations ||= {}
 
             unless self.__cached_associations.has_key? association.name
-              result = association.fetch( self )
-              
-              self.__cached_associations[association.name] = result
+              self.send( "#{association.name}=", association.fetch( self ) )
             end
             self.__cached_associations[association.name]
+          end
+
+          define_method "#{association.name}=" do | value |
+            self.__cached_associations ||= {}
+            self.__cached_associations[association.name] = value
           end
         end
       end

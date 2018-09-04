@@ -11,6 +11,12 @@ module JsonApiModel
         def lookup
           :id
         end
+
+        def query( instances )
+          instances.map do | instance |
+            ids( instance )
+          end.uniq
+        end
       end
     end
   end

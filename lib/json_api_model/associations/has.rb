@@ -10,8 +10,8 @@ module JsonApiModel
         [ :as, :through ]
       end
 
-      def key( instance )
-        if json_relationship?( instance ) || through?
+      def key
+        if json_relationship? || through?
           :id
         elsif as?
           "#{as}_id"
@@ -21,13 +21,17 @@ module JsonApiModel
       end
 
       def ids( instance )
-        if json_relationship?( instance )
+        if json_relationship?
           instance.relationship_ids( name )
         elsif through?
           target_ids( instance )
         else
           instance.id
         end
+      end
+
+      def query( instance )
+        { key => ids( instance ) }
       end
 
       protected
@@ -58,22 +62,6 @@ module JsonApiModel
       
       def through_key
         idify association_class
-      end
-
-      private
-
-      def single_query( instance )
-        { key( instance ) => ids( instance ) }
-      end
-
-      def bulk_query( instances )
-        instances.each_with_object( {} ) do | instance, query |
-          key = key( instance )
-          ids = Array( ids( instance ) )
-          query[ key ] ||= []
-          query[ key ] += ids
-          query[ key ].uniq
-        end
       end
     end
   end
