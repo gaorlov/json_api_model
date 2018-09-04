@@ -8,11 +8,7 @@ module JsonApiModel
       end
 
       def key
-        if json_relationship?
-          :id
-        else
-          "#{name}_id"
-        end
+        "#{name}_id"
       end
 
       def ids( instance )
