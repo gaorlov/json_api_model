@@ -229,7 +229,7 @@ class PreloaderTest < Minitest::Test
                           meta: { record_count: 1, page_count: 1 } }.to_json)
 
 
-    loader = JsonApiModel::Associations::Preloaders::Has.new( @users, @remote_belongs_to )
+    loader = JsonApiModel::Associations::Preloaders::BelongsTo.new( @users, @remote_belongs_to )
     assert_raises do
       loader.fetch
     end

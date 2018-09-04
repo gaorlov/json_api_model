@@ -4,7 +4,7 @@ module JsonApiModel
       class Base
 
         attr_accessor :association
-        delegate :key, :name, :relationship_key, :association_class, :process, :ids, :unprocessed_fetch, to: :association
+        delegate :key, :name, :association_class, :action, :process, :ids, :base_class, to: :association
 
         def initialize( objects, association )
           @objects     = Array( objects )
@@ -12,7 +12,7 @@ module JsonApiModel
         end
 
         def fetch
-          assign [ unprocessed_fetch( @objects ) ].flatten
+          assign association_class.send( action, query( @objects ) ).to_a
         end
 
         protected
@@ -25,8 +25,7 @@ module JsonApiModel
               associated_key( r ).in? Array( ids( object ) )
             end
 
-            object.__cached_associations ||= {}
-            object.__cached_associations[name] = process associated_objects
+            object.send( "#{name}=", process( associated_objects ) )
           end
         end
 

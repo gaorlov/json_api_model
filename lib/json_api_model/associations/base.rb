@@ -18,16 +18,8 @@ module JsonApiModel
         process association_class.send( action, query( instance ) )
       end
 
-      def unprocessed_fetch( instance )
-        association_class.send( action, query( instance ) )
-      end
-
-      def json_relationship?( instance )
-        instance.respond_to?( :has_relationship_ids? ) && instance.has_relationship_ids?( name )
-      end
-
-      def relationship_key
-         base_class.to_s.demodulize.underscore
+      def json_relationship?
+        association_class < JsonApiModel::Model
       end
 
       def association_class
@@ -44,15 +36,6 @@ module JsonApiModel
 
       def idify( class_name )
         "#{class_name.to_s.demodulize.underscore}_id"
-      end
-
-      def query( instance )
-        case instance
-        when Array
-          bulk_query instance
-        else
-          single_query instance
-        end
       end
 
       def derived_class
