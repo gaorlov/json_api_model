@@ -12,10 +12,12 @@ module JsonApiModel
         end
 
         def fetch
-          assign association_class.send( action, query( @objects ) ).to_a
+          assign load
         end
 
-        protected
+        def load
+          association_class.send( action, query( @objects ) ).to_a
+        end
 
         def assign( results )
           validate_assignability!( results )
@@ -28,6 +30,8 @@ module JsonApiModel
             object.send( "#{name}=", process( associated_objects ) )
           end
         end
+
+        protected
 
         def validate_assignability!( results )
           results.each do | object |
