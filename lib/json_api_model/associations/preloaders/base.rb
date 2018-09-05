@@ -16,14 +16,14 @@ module JsonApiModel
         end
 
         def load
-          association_class.send( action, query( @objects ) ).to_a
+          association_class.send( action, query( @objects ) )
         end
 
         def assign( results )
           validate_assignability!( results )
           @objects.each do | object |
 
-            associated_objects = results.select do |r|
+            associated_objects = results.to_a.select do |r|
               associated_key( r ).in? Array( ids( object ) )
             end
 

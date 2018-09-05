@@ -27,8 +27,6 @@ module JsonApiModel
               subobjects = preloader.load
               preloader.assign subobjects
 
-              puts preload, subpreloads, subobjects.class
-
               subobjects.preload( subpreloads )
             end
           else
