@@ -19,8 +19,21 @@ module JsonApiModel
 
       def preload
         @preloads.each do | preload |
-          preloader = Preloaders.preloader_for( @objects, preload )
-          preloader.fetch
+          case preload
+          when Hash
+            preload.each do | preload, subpreloads |
+              preloader = Preloaders.preloader_for( @objects, preload )
+
+              subobjects = preloader.load
+              preloader.assign subobjects
+
+              puts preload, subpreloads, subobjects.class
+
+              subobjects.preload( subpreloads )
+            end
+          else
+            Preloaders.preloader_for( @objects, preload ).fetch
+          end
         end
 
         @objects

@@ -53,9 +53,9 @@ module JsonApiModel
       end
 
       def target_ids( instance )
-        intermadiates = Array(instance.send( through ) )
-        
-        intermadiates.map do | intermediate | 
+        intermediates = Array(instance.send( through ) )
+
+        intermediates.map do | intermediate |
           intermediate.send( through_key )
         end
       end

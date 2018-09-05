@@ -42,6 +42,9 @@ module Example
 
     class Org < Base
     end
+
+    class Industry < Base
+    end
   end
 
   class Profile < JsonApiModel::Model
@@ -85,6 +88,12 @@ module Example
 
   class Org < JsonApiModel::Model
     wraps Example::Client::Org
+
+    belongs_to :industry
+  end
+
+  class Industry < JsonApiModel::Model
+    wraps Example::Client::Industry
   end
 
   class Blank < JsonApiModel::Model
@@ -99,12 +108,20 @@ end
 
 module FakeActiveRecord
   class Relation
-    def initialize( records )
+    def initialize( args, records )
       @__records = records
     end
 
     def first
       @__records.first
+    end
+
+    def preload( *args )
+      self
+    end
+
+    def to_a
+      self
     end
 
     def method_missing( m, *args, &block )
@@ -117,16 +134,23 @@ module FakeActiveRecord
 
     def initialize( args = {} )
       @__attributes = args.dup.with_indifferent_access
+      @__attributes[:id] ||= self.class.id
     end
 
+    class_attribute :__id
+    self.__id = 0
     class << self
+      def id
+        self.__id += 1
+      end
+
       def where( args = {} )
         r = args.each_with_object([]) do | ( k, v ), results |
           Array(v).each do |value|
             results << new( k => value )
           end
         end
-        Relation.new r
+        Relation.new args, r
       end
 
       def find( opts )
@@ -148,6 +172,7 @@ module FakeActiveRecord
         super
       end
     end
+
     def respond_to_missing?( m, include_private = false )
       __attributes.has_key? m.to_s || super
     end
@@ -173,6 +198,9 @@ class Nothing < FakeActiveRecord::Base
 end
 
 class End < FakeActiveRecord::Base
+end
+
+class Mean < FakeActiveRecord::Base
 end
 
 class BadBelong < FakeActiveRecord::Base

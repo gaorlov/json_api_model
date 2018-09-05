@@ -349,7 +349,21 @@ class PreloaderTest < Minitest::Test
   end
 
   def test_preloader_with_nested_preloads
-    skip
-    JsonApiModel::Associations::Preloader.preload( @users, intermediates: [ :ends ])
+    options_stub = stub_request(:get, "http://example.com/options?filter[id][0]=1&filter[id][1]=2&filter[id][3]=4&filter[id][4]=5&filter[id][5]=10&filter[id][6]=11&filter[id][7]=16")
+                      .to_return( headers: { content_type: "application/vnd.api+json" }, 
+                                   body: { data: [{ type: :options, id: 1 },
+                                                  { type: :options, id: 2 },
+                                                  { type: :options, id: 4 },
+                                                  { type: :options, id: 5 },
+                                                  { type: :options, id: 10 },
+                                                  { type: :options, id: 16 }],
+                                            meta: { record_count: 7, page_count: 1 } }.to_json)
+
+    orgs_stub = stub_request(:get, "http://example.com/orgs?ids=1,2")
+                    .to_return( headers: { content_type: "application/vnd.api+json" }, 
+                                body: { data: [{ type: :orgs, id: 1 }],
+                                        meta: { record_count: 1, page_count: 1 } }.to_json)
+
+    JsonApiModel::Associations::Preloader.preload( @users, :options, intermediates: [ :ends, :means ], org: :industry )
   end
 end
