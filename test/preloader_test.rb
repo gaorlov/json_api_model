@@ -385,6 +385,24 @@ class PreloaderTest < Minitest::Test
     assert_requested orgs_stub, times: 1
     assert_requested industries_stub, times: 1
     assert_requested options_stub, times: 1
+  end
 
+  def test_preloader_raises_on_heterogeneus_object_set
+    stub_request(:get, "http://example.com/orgs?page[page]=1&page[per_page]=1")
+      .to_return( headers: { content_type: "application/vnd.api+json" }, 
+                   body: { data: { type: :orgs, id: 1 },
+                           meta: { record_count: 2, page_count: 1 } }.to_json)
+    objects = @users + [ Example::Org.first ]
+    assert_raises do
+      JsonApiModel::Associations::Preloader.preload( objects, :options, intermediates: [ :ends, :means ], org: :industry )
+    end
+
+    options_stub = stub_request(:get, "http://example.com/options?filter[id][0]=1&filter[id][1]=2&filter[id][3]=4&filter[id][4]=5&filter[id][5]=10&filter[id][6]=11&filter[id][7]=16")
+    orgs_stub = stub_request(:get, "http://example.com/orgs?ids=1,2")
+    industries_stub = stub_request(:get, "http://example.com/industries?ids=1")
+    
+    refute_requested options_stub
+    refute_requested orgs_stub
+    refute_requested industries_stub
   end
 end
