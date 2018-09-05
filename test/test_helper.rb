@@ -89,7 +89,7 @@ module Example
   class Org < JsonApiModel::Model
     wraps Example::Client::Org
 
-    belongs_to :industry
+    belongs_to :industry, class_name: "Example::Industry"
   end
 
   class Industry < JsonApiModel::Model

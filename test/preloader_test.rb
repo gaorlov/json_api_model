@@ -361,9 +361,42 @@ class PreloaderTest < Minitest::Test
 
     orgs_stub = stub_request(:get, "http://example.com/orgs?ids=1,2")
                     .to_return( headers: { content_type: "application/vnd.api+json" }, 
-                                body: { data: [{ type: :orgs, id: 1 }],
+                                body: { data: [ { type: :orgs,
+                                                  id: 1,
+                                                  attributes: { name: "Org 1" },
+                                                  links: { self: ""},
+                                                  relationships: {
+                                                    industry: {
+                                                      data: { type: :industries, id: 1 },
+                                                    }
+                                                  }
+                                                },
+                                                { type: :orgs,
+                                                  id: 2,
+                                                  attributes: { name: "Org 2" },
+                                                  links: { self: ""},
+                                                  relationships: {
+                                                    industry: {
+                                                      data: { type: :industries, id: 1 },
+                                                    }
+                                                  }
+                                                }],
+                                        meta: { record_count: 1, page_count: 1 } }.to_json)
+
+    industries_stub = stub_request(:get, "http://example.com/industries?ids=1")
+                    .to_return( headers: { content_type: "application/vnd.api+json" }, 
+                                body: { data: [ { type: :industries,
+                                                  id: 1,
+                                                  attributes: { name: "Engineering" },
+                                                  links: { self: ""}
+                                                }],
                                         meta: { record_count: 1, page_count: 1 } }.to_json)
 
     JsonApiModel::Associations::Preloader.preload( @users, :options, intermediates: [ :ends, :means ], org: :industry )
+
+    assert_requested orgs_stub, times: 1
+    assert_requested industries_stub, times: 1
+    assert_requested options_stub, times: 1
+
   end
 end
