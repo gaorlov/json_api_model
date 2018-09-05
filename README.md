@@ -184,6 +184,58 @@ class MyModelInRussianConroller < ApplicationController
 end
 ```
 
+### Preloading
+
+If you have a model that you need to bulk load along with its associations, in `ActiveRecord`, you can do `MyModel.where( args ).preload( :association, other_association: :nested association )`. Well, you can do that here as well.
+
+__NOTE__(1): consider the complexity, especially for remote models
+
+__NOTE__(2): for remote models, the preloader does not currently autopage
+
+#### Example
+
+Let's say you have a mixed environemnt of local and remote models, like so:
+
+```ruby
+module Example
+  class User < JsonApiModel::Model
+    wraps Example::Client::User
+
+    # remote model
+    belongs_to :org, class_name: "Example::Org"
+
+    # local model
+    has_one :profile
+  end
+
+  class Org < JsonApiModel::Model
+    wraps Example::Client::Org
+  end
+end
+
+class Profile < ActiveRecord::Base
+  belongs_to :user
+end
+```
+
+You can bulk prefetch associations for a block of `User`s
+
+```ruby
+Example::User.where( name: [ "Greg", "Mike" ] ).preload( :org, :profile )
+```
+
+Will make 3 calls:
+
+* `User` to fetch `.where( name: [ "Greg", "Mike" ])`
+* `Org` to fetch the orgs associated with those users, as returned in their relationship blocks
+* `Profile` to fetch `where( user_id: users.map( &:id ) )`
+
+Or if you already have your `users` loaded, you can call
+
+```ruby
+JsonApiModel::Associations::Preloader.preload( users, :org, :profile )
+```
+and that'll do the same thing, minus the `User` call
 
 ### Configuration
 
